@@ -1,0 +1,92 @@
+const mongoose=require('mongoose');
+
+const customerSchema=new mongoose.Schema({
+
+    referralCode:{
+        type:String
+    },
+    userName:{
+        type:String,
+        unique:true,
+        index:true,
+        sparse:true
+    },
+    walletBalance:{
+        type:Number,
+        default:0
+    },
+    customerId:{
+        type:String,
+        unique:true,
+        index:true,
+        sparse:true
+    },
+    userState:{
+        type:String,
+        default:"Normal"
+    },
+    nickName:{
+        type:String
+    },
+    email:{
+        type:String,
+        unique:true,
+        index:true,
+        sparse:true
+    },
+    password:{
+        type:String
+    },
+    userBankName:{
+        type:String
+    },
+    userBankAccountNumber:{
+        type:Number,
+        unique:true,
+        index:true,
+        sparse:true
+    },
+    userBankAccountHolderName:{
+        type:String
+    },
+    mobileNumber:{
+        type:Number,
+        unique:true,
+        index:true,
+        sparse:true
+    },
+    countryCode:{
+        type:Number
+    },
+    mobileOtp:{
+        type:String
+    },
+    emailOtp:{
+        type:String
+    },
+    emailOtpExpiryTime:{
+        type:Date
+    },
+    mobileOtpExpiryTime:{
+        type:Date
+    },
+    isAccountBlocked:{
+        type:Boolean,
+        default:false
+    },
+    isEmailVerified:{
+        type:Boolean,
+        default:false
+    },
+    isMobileNumberVerified:{
+        type:Boolean,
+        default:false
+    },
+    token:{
+        type:String
+    }
+},{timestamps:true,versionKey:false});
+
+const Customer=new mongoose.model("customers",customerSchema);
+
+module.exports=Customer;

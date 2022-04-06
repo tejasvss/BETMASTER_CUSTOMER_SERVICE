@@ -1,3 +1,6 @@
 {
-    "PORT":"8080"
+     "PORT":"8080",
+     "AWS_ACCESS_KEY_ID":"AKIAUBT7NAIWLUN3CM2D",
+     "AWS_SECRET_ACCESS_KEY":"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",
+     "AWS_REGION":"ap-northeast-2"
 }
