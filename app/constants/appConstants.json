@@ -2,5 +2,7 @@
      "PORT":"8080",
      "AWS_ACCESS_KEY_ID":"AKIAUBT7NAIWLUN3CM2D",
      "AWS_SECRET_ACCESS_KEY":"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",
-     "AWS_REGION":"ap-northeast-2"
+     "AWS_REGION":"ap-northeast-2",
+     "DB_URL":"mongodb+srv://betmaster:vKSISJgXOai5uYaq@cluster0.wrp3t.mongodb.net/BETMASTER?retryWrites=true&w=majority",
+     "JWT_SECRET_ACCESS_KEY":"BHCBUCUHIJINIUhy7yfhunich87yfbfije09iei09ueibuw76t7wdhwd8g7dd6wtd8nscoaklap[xlp0od0ef.[l0e9fe87qyr87hindi"
 }

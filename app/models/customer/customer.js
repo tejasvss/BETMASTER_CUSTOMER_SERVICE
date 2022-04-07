@@ -5,11 +5,15 @@ const customerSchema=new mongoose.Schema({
     referralCode:{
         type:String
     },
-    userName:{
+    username:{
         type:String,
         unique:true,
         index:true,
         sparse:true
+    },
+    customerStatusId:{
+        type:Number,
+        default:0
     },
     walletBalance:{
         type:Number,
@@ -25,7 +29,11 @@ const customerSchema=new mongoose.Schema({
         type:String,
         default:"Normal"
     },
-    nickName:{
+    role:{
+        type:String,
+        default:"customer"
+    },
+    nickname:{
         type:String
     },
     email:{
@@ -82,8 +90,15 @@ const customerSchema=new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    isBankDetailsUpdated:{
+        type:Boolean,
+        default:false
+    },
     token:{
         type:String
+    },
+    lastLoginTime:{
+        type:Date
     }
 },{timestamps:true,versionKey:false});
 
