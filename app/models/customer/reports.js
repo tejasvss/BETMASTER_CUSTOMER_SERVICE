@@ -4,7 +4,7 @@ Schema = mongoose.Schema;
 const reportsSchema=new mongoose.Schema({
 
     customerId:{
-        type:Schema.Types.ObjectId,
+        type:String,
         ref:'customers'   
      },
     reportId:{
@@ -14,7 +14,7 @@ const reportsSchema=new mongoose.Schema({
         sparse:true
     },
     complaint:{
-        type:string
+        type:String
     },
     reply:{
         type:String
@@ -22,16 +22,23 @@ const reportsSchema=new mongoose.Schema({
     repliedBy:{
         type:Schema.Types.ObjectId,
     },
+    repliedAt:{
+        type:Date
+    },
     reportStatus:{
         type:String,
         default:"Pending"
     },
     isEditable:{
         type:Boolean,
+        default:true
+    },
+    isReplied:{
+        type:Boolean,
         default:false
     }
 },{timestanps:true,versionKey:false});
 
-const UserReports=new mongoose.model("customer_reports",reportsSchema);
+const CustomerReports=new mongoose.model("customer_reports",reportsSchema);
 
-module.exports=UserReports;
+module.exports=CustomerReports;

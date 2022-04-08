@@ -14,6 +14,7 @@ mongoose.connect(config.DB_URL,{
     console.log("DB:Mongo DB ATLAS")
     console.log("*******************************************");
 }).catch(err=>{
+    console.log(err)
     console.log("Unable to Connect .Something went Wrong")
     console.log("*******************************************");
 })
