@@ -99,6 +99,10 @@ const customerSchema=new mongoose.Schema({
     },
     lastLoginTime:{
         type:Date
+    },
+    isLoggedIn:{
+        type:Boolean,
+        default:false
     }
 },{timestamps:true,versionKey:false});
 

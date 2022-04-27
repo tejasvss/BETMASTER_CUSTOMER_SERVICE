@@ -6,7 +6,10 @@ const generateOtpExpiryTime=require('../../utils/otpUtils/generateOtpExpiryTime'
 const generateId=require('../../utils/helpers/generateId');
 const jwt=require('jsonwebtoken');
 const appsConfig=require('../../constants/appConstants.json');
-const bcrypt=require('bcryptjs')
+const bcrypt=require('bcryptjs');
+const sendMobileOtp=require('../../utils/mobileSms/sendMobileOtp');
+const otpExpiryTime = require('../../utils/otpUtils/generateOtpExpiryTime');
+const { UserBindingContext } = require('twilio/lib/rest/chat/v2/service/user/userBinding');
 
 
 /*---------------------------ReferralCode_Validation-------------------*/
@@ -55,12 +58,12 @@ exports.checkUsername=async(req,res)=>{
         }
         else if(!checkUser)
         {
-            return res.status(400).send({status:400,Message:"User name is available",isUsernameAvailable:true})
+            return res.status(200).send({status:200,Message:"User name is available",isUsernameAvailable:true})
         }
     }
     catch(error)
     {
-        res.status(400).send({status:400,Message:error.message || "Something went wrong.Try again"})
+        res.status(500).send({status:500,Message:error.message || "Something went wrong.Try again"})
     }
 }
 
@@ -116,9 +119,10 @@ exports.checkEmailAndSendOtp=async(req,res)=>{
         {
             const emailOtp=await generateOtp(6);
             const emailOtpExpiryTime=await generateOtpExpiryTime(5);
-            const subject="Registration of account"
+            const subject="Registration of account";
+            const text="Use the following OTP for verifying email and registration process"
 
-            await emailUtils.sendEmailOtp(req.body.email,subject,emailOtp).then(async(success)=>{
+            await emailUtils.sendEmailOtp(req.body.email,subject,text,emailOtp).then(async(success)=>{
 
                const emailData= await Customer.create({emailOtp:emailOtp,emailOtpExpiryTime:emailOtpExpiryTime});
 
@@ -190,7 +194,7 @@ exports.verifyEmailOtpAndCreateUser=async(req,res)=>{
 
 
 /*----------------------CheckMobileNumber-------------------------*/
-exports.checkMobileNumer=async(req,res)=>{
+exports.checkMobileNumber=async(req,res)=>{
     try{
  
         if(!req.body.mobileNumber || !req.body.countryCode)
@@ -200,18 +204,33 @@ exports.checkMobileNumer=async(req,res)=>{
 
         const checkMobileNumber=await Customer.findOne({countryCode:req.body.countryCode,mobileNumber:req.body.mobileNumber});
 
-        if(checkMobileNumber && checkMobileNumber.customerId != req.customerId)
+         if(!checkMobileNumber)
         {
-            return res.status(400).send({status:400,Message:"Your entered mobilenumber is already taken"})
-        }
-        else if(checkMobileNumber || checkMobileNumber.customerId == req.customerId)
+            const mobileOtp=await generateOtp(6);
+            const mobileOtpExpiryTime=await otpExpiryTime(5);
+            const message=`Your one-time-password is ${mobileOtp}.Otp is valid for 5 minutes only.From Betmaster`;
+
+            await sendMobileOtp(message,req.body.countryCode,req.body.mobileNumber).then(async(data)=>{
+
+                await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{mobileOtp:mobileOtp,mobileOtpExpiryTime:mobileOtpExpiryTime}},{new:true});
+
+                return res.status(200).send({status:200,Message:"Otp sent to mobileNumber",isMobileOtpSent:true})
+            }).
+            catch(err=>{
+
+                return res.status(400).send({status:400,Message:err.message || "Recipients not found",isMobileOtpSent:false})
+            })
+        }  
+
+        else if(checkMobileNumber && checkMobileNumber.customerId != req.customerId)
         {
-            return res.status(400).send({status:400,Message:"Your new mobile number cannot same as your old mobilenumber"})
+            return res.status(400).send({status:400,Message:"Your entered mobilenumber is already taken",isMobileOtpSent:false})
         }
-        else if(!checkMobileNumber)
+        else if(checkMobileNumber && checkMobileNumber.customerId == req.customerId)
         {
-            return res.status(200).send({status:200,Message:"Otp sent to mobileNumber"})
+            return res.status(400).send({status:400,Message:"Your new mobile number cannot same as your old mobilenumber",isMobileOtpSent:false})
         }
+          
     }
     catch(error)
     {
@@ -242,8 +261,8 @@ exports.verifyMobileOtp=async(req,res)=>{
         else if(checkMobileOtp && Date.now() < checkMobileOtp.mobileOtpExpiryTime)
         {
 
-            const mobileData=await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{customerStatusId:3,isMobileVerified:true,mobileNumber:req.body.mobileNumber,countryCode:req.body.countryCode}},{new:true})
-            return res.status(400).send({status:400,Message:"Your entered mobile otp is verified successfully",isMobileOtpValid:true})
+            const mobileData=await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{customerStatusId:3,isMobileNumberVerified:true,mobileNumber:req.body.mobileNumber,countryCode:req.body.countryCode}},{new:true})
+            return res.status(200).send({status:200,Message:"Your entered mobile otp is verified successfully",isMobileOtpValid:true,Data:mobileData})
         }
     }
     catch(error)
@@ -251,3 +270,81 @@ exports.verifyMobileOtp=async(req,res)=>{
         res.status(500).send({status:500,Message:error.message || "Something went wrong.Try again"})
     }
 }
+
+/*---------------------FORGOT_PASSWORD_API--------------------*/
+exports.forgotPassword=async(req,res)=>{
+
+    try{
+
+        if(!req.body.email)
+        {
+            return res.status(400).send({status:400,Message:"Required email fields cannot be empty"})
+        }
+
+        const checkEmail=await Customer.findOne({email:req.body.email});
+
+        if(!checkEmail)
+        {
+            return res.status(400).send({status:400,Message:"Your entered email doesn't have any account",isEmailOtpSent:false})
+        }
+
+        else if (checkEmail)
+        {
+            const emailOtp=await generateOtp(6);
+            const emailOtpExpiryTime=await generateOtpExpiryTime(5);
+            const subject="Account recovery";
+            const text="Use the following OTP for verifying email to change the password"
+
+            await emailUtils.sendEmailOtp(req.body.email,subject,text,emailOtp).then(async(success)=>{
+
+               await Customer.findOneAndUpdate({customerId:checkEmail.customerId},{$set:{emailOtp:emailOtp,emailOtpExpiryTime:emailOtpExpiryTime}});
+
+               return res.status(200).send({status:200,Message:"Email otp sent successfully",customerId:checkEmail.customerId,isEmailOtpSent:true})
+            })
+            .catch(err=>{
+
+                return res.status(400).send({status:400,Message:err.message || "No email or recipients found",isEmailOtpSent:false})
+            })
+        }
+    }
+    catch(error)
+    {
+        res.status(500).send({status:500,Message:error.message || "Something went wrong.Try again"})
+
+    }
+}
+
+/*----------------Verify_Forgot_password_Email_Otp_API------------*/
+exports.verifyForgotOtpAndUpdatePassword=async(req,res)=>{
+
+    try{
+     
+        if(!req.body.customerId || !req.body.emailOtp || !req.body.password)
+        {
+            return res.status(400).send({status:400,Message:"Required emailotp,customerId fields cannot be empty"})
+        }
+
+        const checkOtp=await Customer.findOne({customerId:req.body.customerId,emailOtp:req.body.emailOtp});
+
+        if(!checkOtp)
+        {
+            return res.status(400).send({status:400,Message:"Your entered emailotp is invalid",isEmailOtpValid:false})
+        }
+        else if(checkOtp && Date.now() > checkOtp.emailOtpExpiryTime)
+        {
+            return res.status(400).send({status:400,Message:"Your entered emailotp is expired",isEmailOtpValid:false})
+        }
+        else if(checkOtp && Date.now() < checkOtp.emailOtpExpiryTime)
+        {
+            const password=await bcrypt.hash(req.body.password,8);
+            await Customer.findOneAndUpdate({customerId:req.body.customerId},{$set:{password:password}});
+            return res.status(400).send({status:400,Message:"Otp verified and password changed successfully",isEmailOtpValid:true});
+        }
+    }
+    catch(error)
+    {
+        res.status(500).send({status:500,Message:error.message || "Something went wrong.Try again"})
+    }
+}
+
+

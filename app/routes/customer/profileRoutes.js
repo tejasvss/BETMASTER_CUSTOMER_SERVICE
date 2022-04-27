@@ -9,6 +9,8 @@ const customerAuthorization=require('../../config/customerAuthorization');
 
 router.post('/customerLogin',profileController.customerLogin);
 router.get('/getCustomerProfile',customerAuthorization.verifyToken,customerAuthorization.isCustomer,profileController.getCustomerProfile);
+router.post('/changeEmail',customerAuthorization.verifyToken,customerAuthorization.isCustomer,profileController.changeEmail);
+router.post('/verifyEmailOtp',customerAuthorization.verifyToken,customerAuthorization.isCustomer,profileController.verifyEmailOtp);
 
 
 module.exports=router;

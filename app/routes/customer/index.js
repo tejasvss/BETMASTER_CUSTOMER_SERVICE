@@ -6,6 +6,8 @@ const baseURL="/customerService"
 router.use(baseURL,require('./customerRoutes'));
 router.use(baseURL,require('./profileRoutes'));
 router.use(baseURL,require('./reportsRoutes'));
+router.use(baseURL,require('./depositRoutes'));
+router.use(baseURL,require('./withdrawlRoutes'));
 
   
 module.exports = router;

@@ -2,8 +2,7 @@ const nodemailer=require('nodemailer');
 const emailConfig=require('../../constants/emailConstants.json');
 
 
-exports.sendEmailOtp=async(email,subject,emailOtp)=>{
-console.log("Inemail",emailOtp);
+exports.sendEmailOtp=async(email,subject,text,emailOtp)=>{
    
    var transporter = nodemailer.createTransport({
        host: emailConfig.host,
@@ -31,7 +30,7 @@ console.log("Inemail",emailOtp);
            </a>
          </div>
          <p style="font-size:1.1em">Hi,</p>
-         <p>Thank you for choosing BetMaster. Use the following OTP to complete new email updation procedure. OTP is valid for 5 minutes</p>
+         <p>Thank you for choosing BetMaster.${text}. OTP is valid for 5 minutes</p>
          <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${emailOtp}</h2>
          <p style="font-size:0.9em;">Regards,<br />BETMASTER Team</p>
          <hr style="border:none;border-top:1px solid #eee" />

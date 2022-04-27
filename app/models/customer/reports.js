@@ -21,6 +21,7 @@ const reportsSchema=new mongoose.Schema({
     },
     repliedBy:{
         type:Schema.Types.ObjectId,
+        ref:"Admins"
     },
     repliedAt:{
         type:Date

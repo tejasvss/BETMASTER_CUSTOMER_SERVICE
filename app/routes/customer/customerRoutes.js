@@ -13,6 +13,8 @@ router.post('/verifyEmailOtpAndCreateUser',customerController.verifyEmailOtpAndC
 router.post('/checkEmailAndSendOtp',customerController.checkEmailAndSendOtp);
 router.post('/create',referralController.createReferral);
 router.post('/checkAndUpdateBankNumber',customerAuthorization.verifyToken,customerAuthorization.isCustomer,customerController.checkAndUpdateBankNumber);
-
-
+router.post('/checkMobileNumberAndSendOtp',customerAuthorization.verifyToken,customerAuthorization.isCustomer,customerController.checkMobileNumber);
+router.post('/verifyMobileOtp',customerAuthorization.verifyToken,customerAuthorization.isCustomer,customerController.verifyMobileOtp);
+router.post('/forgotPassword',customerController.forgotPassword);
+router.post('/verifyForgotOtpAndUpdatePassword',customerController.verifyForgotOtpAndUpdatePassword);
 module.exports=router;
