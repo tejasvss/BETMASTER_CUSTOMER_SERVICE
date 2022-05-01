@@ -8,6 +8,8 @@ const jwt=require('jsonwebtoken');
 const appsConfig=require('../../constants/appConstants.json');
 const bcrypt=require('bcryptjs');
 const { response } = require('express');
+const CustomerErrorLog=require('../../models/customer/errorlog');
+
 
 
 /*----------------------Customer_Login------------------------*/
@@ -31,6 +33,8 @@ exports.customerLogin=async(req,res)=>{
 
             if(!checkPassword)
             {
+                //Creating Error log
+                const errorData=await CustomerErrorLog.create({customerId:checkUser._id,username:checkUser.username,nickname:checkUser.nickname,device:"Chrome in web",error:"Password mismatch",ip:"11.11.11.11"});
                 return res.status(400).send({status:400,Message:"Your entered password is incorrect"})
             }
 
@@ -148,10 +152,14 @@ exports.verifyEmailOtp=async(req,res)=>{
         const checkEmailOtp=await Customer.findOne({emailOtp:req.body.emailOtp,customerId:req.customerId});
         if(!checkEmailOtp)
         {
+            //Creating Error log
+            // await CustomerErrorLog.create({customerId:req.id,error:"Entered email otp is invalid"});
             return res.status(400).send({status:400,Message:"Your entered email otp is invalid",isOtpValid:false})
         }
         else if(checkEmailOtp && Date.now() > checkEmailOtp.emailOtpExpiryTime)
         {
+            //Creating Error log
+            await CustomerErrorLog.create({customerId:req.id,error:"Entered email otp is expired"});
             return res.status(400).send({status:400,Message:"Your entered email otp is expired",isOtpValid:false})
         }
         else if(checkEmailOtp && Date.now() < checkEmailOtp.emailOtpExpiryTime)

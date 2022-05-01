@@ -10,7 +10,7 @@ const bcrypt=require('bcryptjs');
 const sendMobileOtp=require('../../utils/mobileSms/sendMobileOtp');
 const otpExpiryTime = require('../../utils/otpUtils/generateOtpExpiryTime');
 const { UserBindingContext } = require('twilio/lib/rest/chat/v2/service/user/userBinding');
-
+const CustomerErrorLog=require('../../models/customer/customer');
 
 /*---------------------------ReferralCode_Validation-------------------*/
 exports.checkReferralCode=async(req,res)=>{
@@ -252,10 +252,14 @@ exports.verifyMobileOtp=async(req,res)=>{
         const checkMobileOtp=await Customer.findOne({customerId:req.customerId,mobileOtp:req.body.mobileOtp});
         if(!checkMobileOtp)
         {
+            //Creating Error log
+            // await CustomerErrorLog.create({customerId:req.id,error:"Entered mobileotp is invalid"});
             return res.status(400).send({status:400,Message:"Your entered mobileOtp is invalid",isMobileOtpValid:false})
         }
         else if(checkMobileOtp && Date.now() > checkMobileOtp.mobileOtpExpiryTime)
         {
+            //Creating Error log
+            // await CustomerErrorLog.create({customerId:req.id,error:"Entered mobileotp is expired"});
             return res.status(400).send({status:400,Messae:"Your entered mobileOtp is expired",isMobileOtpValid:false});
         }
         else if(checkMobileOtp && Date.now() < checkMobileOtp.mobileOtpExpiryTime)
@@ -328,17 +332,21 @@ exports.verifyForgotOtpAndUpdatePassword=async(req,res)=>{
 
         if(!checkOtp)
         {
+            //Creating Error log
+            // await CustomerErrorLog.create({customerId:req.id,error:"Entered emailotp is invalid"});
             return res.status(400).send({status:400,Message:"Your entered emailotp is invalid",isEmailOtpValid:false})
         }
         else if(checkOtp && Date.now() > checkOtp.emailOtpExpiryTime)
         {
+            //Creating Error log
+            // await CustomerErrorLog.create({customerId:req.id,error:"Entered emailotp is expired"});
             return res.status(400).send({status:400,Message:"Your entered emailotp is expired",isEmailOtpValid:false})
         }
         else if(checkOtp && Date.now() < checkOtp.emailOtpExpiryTime)
         {
             const password=await bcrypt.hash(req.body.password,8);
             await Customer.findOneAndUpdate({customerId:req.body.customerId},{$set:{password:password}});
-            return res.status(400).send({status:400,Message:"Otp verified and password changed successfully",isEmailOtpValid:true});
+            return res.status(200).send({status:200,Message:"Otp verified and password changed successfully",isEmailOtpValid:true});
         }
     }
     catch(error)

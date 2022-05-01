@@ -114,3 +114,23 @@ exports.getAllDepositStatements=async(req,res)=>{
         res.status(500).send({status:500,Message:error.message || "something went wrong.Try again"})
     }
 }
+
+/*------------------Get_Admin_Bank_Details----------------------------*/
+exports.getAdminBankDetails=async(req,res)=>{
+
+    try{
+        res.status(200).send({status:200,
+            Message:"Admin bank details fetched succeessfully",
+            bankName:"ICICI BANK",
+            accountHolderName:"SKystop pvt ltd",
+            accountNumber:"887766544",
+            swiftCode:"ICIC0007551",
+            bankLogo:"https://st.adda247.com/https://wpassets.adda247.com/wp-content/uploads/multisite/sites/5/2020/08/11134300/cancel-icici-bank-credit-card.jpg",
+            isBankActive:true})
+
+    }
+    catch(error)
+    {
+        res.status(500).send({status:500,Message:error.message || "something went wrong.Try again"})
+    }
+}

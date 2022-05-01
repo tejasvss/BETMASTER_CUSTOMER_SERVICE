@@ -131,7 +131,7 @@ exports.getReportByReportId=async(req,res)=>{
         return res.status(400).send({status:400,Message:"Required reportId fields cannot be empty"})
     }
 
-    const checkReportId=await CustomerReports.findOne({reportId:req.params.reportId,customerId:req.customerId});
+    const checkReportId=await CustomerReports.findOne({reportId:req.params.reportId,customerId:req.customerId}).populate("repliedBy","name").select('-reportAdminName')
 
     if(!checkReportId)
     {

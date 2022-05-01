@@ -22,8 +22,9 @@ const customerSchema=new mongoose.Schema({
     customerId:{
         type:String,
         unique:true,
-        index:true,
-        sparse:true
+        sparse:true,
+        index:true
+
     },
     userState:{
         type:String,
@@ -103,6 +104,18 @@ const customerSchema=new mongoose.Schema({
     isLoggedIn:{
         type:Boolean,
         default:false
+    },
+    totalDepositAmount:{
+        type:Number,
+        default:0
+    },
+    totalWithdrawlAmount:{
+        type:Number,
+        default:0
+    },
+    totalRevenueAmount:{
+        type:Number,
+        default:0
     }
 },{timestamps:true,versionKey:false});
 

@@ -1,5 +1,6 @@
 const mongoose=require('mongoose');
 Schema = mongoose.Schema;
+const Admin=require('../superadmin/superadminModel');
 
 const reportsSchema=new mongoose.Schema({
 
@@ -20,8 +21,8 @@ const reportsSchema=new mongoose.Schema({
         type:String
     },
     repliedBy:{
-        type:Schema.Types.ObjectId,
-        ref:"Admins"
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Admin"
     },
     repliedAt:{
         type:Date
@@ -38,7 +39,7 @@ const reportsSchema=new mongoose.Schema({
         type:Boolean,
         default:false
     }
-},{timestanps:true,versionKey:false});
+},{timestamps:true,versionKey:false,strict:false});
 
 const CustomerReports=new mongoose.model("customer_reports",reportsSchema);
 

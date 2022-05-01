@@ -18,6 +18,7 @@ const customerAuthorization=require('../../config/customerAuthorization');
 
 router.post('/customerBankDeposit',customerAuthorization.verifyToken,customerAuthorization.isCustomer,upload,depositController.customerBankDeposit);
 router.post('/getAllDepositStatements',customerAuthorization.verifyToken,customerAuthorization.isCustomer,depositController.getAllDepositStatements);
+router.get('/getAdminBankDetails',customerAuthorization.verifyToken,customerAuthorization.isCustomer,depositController.getAdminBankDetails)
 
 
 module.exports=router;
