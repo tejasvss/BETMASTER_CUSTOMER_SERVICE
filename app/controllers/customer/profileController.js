@@ -38,11 +38,11 @@ exports.customerLogin=async(req,res)=>{
                 return res.status(400).send({status:400,Message:"Your entered password is incorrect"})
             }
 
-            else if(checkPassword && checkUser.customerStatusId == 4)
+            else if(checkPassword && checkUser.isAccountBlocked == true)
             {
                 return res.status(400).send({status:400,Message:"Your account is blocked.Please contact support team"})
             }
-            else if(checkPassword && checkPassword.customerStatusId !=4)
+            else if(checkPassword && checkUser.isAccountBlocked == false)
             {
                 const token= jwt.sign({_id:checkUser._id,customerId:checkUser.customerId,role:checkUser.role},appsConfig.JWT_SECRET_ACCESS_KEY);
                 checkUser.lastLogintime=Date.now();

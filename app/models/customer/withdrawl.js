@@ -3,7 +3,8 @@ const mongoose=require('mongoose');
 const customerWithdrawlSchema=new mongoose.Schema({
 
     customerId:{
-        type:String
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"customers"
     },
     withdrawlAmount:{
         type:Number
@@ -36,7 +37,8 @@ const customerWithdrawlSchema=new mongoose.Schema({
         type:String
     },
     withdrawlApprovedOrRejectedBy:{
-        type:String
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"admins"
     },
     withdrawlApprovedOrRejectedAt:{
         type:Date
@@ -57,6 +59,9 @@ const customerWithdrawlSchema=new mongoose.Schema({
         type:String
     },
     withdrawlRequestorBankSwiftcode:{
+        type:String
+    },
+    withdrawlRequestorBankName:{
         type:String
     }
 },{timestamps:true,versionKey:false});

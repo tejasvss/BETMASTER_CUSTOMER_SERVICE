@@ -9,6 +9,7 @@ const customerAuthorization=require('../../config/customerAuthorization');
 
 router.post('/checkReferralCode',customerController.checkReferralCode);
 router.post('/checkUsername',customerController.checkUsername);
+router.get('/updateAll',customerController.updateAll)
 router.post('/verifyEmailOtpAndCreateUser',customerController.verifyEmailOtpAndCreateUser);
 router.post('/checkEmailAndSendOtp',customerController.checkEmailAndSendOtp);
 router.post('/create',referralController.createReferral);

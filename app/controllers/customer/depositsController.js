@@ -12,7 +12,7 @@ exports.customerBankDeposit=async(req,res)=>{
 
     try{
       
-        if(!req.file || !req.body.depositAmount || !req.body.depositTransactionType  || !req.body.depositTransactionNumber || !req.body.depositorMobileNumber || !req.body.depositorCountryCode || !req.body.depositorBankAccountHolderName || !req.body.depositorBankAccountNumber || !req.body.depositorEmail)
+        if(!req.file || !req.body.depositAmount || !req.body.depositTransactionType  || !req.body.depositTransactionNumber || !req.body.depositorMobileNumber || !req.body.depositorCountryCode || !req.body.depositorBankAccountHolderName || !req.body.depositorBankAccountNumber || !req.body.depositorEmail || !req.body.depositorBankName)
         {
             res.status(400).send({status:400,Message:"Required fields cannot be empty"})
         }
@@ -64,11 +64,12 @@ exports.customerBankDeposit=async(req,res)=>{
 
              await CustomerDeposits.create({
                                     
-                                customerId:req.customerId,
+                                customerId:req.id,
                                 depositAmount:req.body.depositAmount,
                                 depositTransactionType:req.body.depositTransactionType,
                                 depositTransactionTypeImage:depositTransactionTypeImage,
                                 depositId:depositId,
+                                depositorBankName:req.body.depositorBankName,
                                 depositTransactionNumber:req.body.depositTransactionNumber,
                                 customerDepositProof:customerDepositProofUrl,
                                 depositorMobileNumber:req.body.depositorMobileNumber,
@@ -96,10 +97,10 @@ exports.getAllDepositStatements=async(req,res)=>{
     try{
         
         const paginationData=await paginationUtility(req,res);
-        const totalCount=await CustomerDeposits.find({customerId:req.customerId}).countDocuments();
+        const totalCount=await CustomerDeposits.find({customerId:req.id}).countDocuments();
         const totalPages=totalCount/paginationData.limit;
         
-        const depositsData=await CustomerDeposits.find({customerId:req.customerId}).sort('-createdAt').limit(paginationData.limit).skip(paginationData.skip);
+        const depositsData=await CustomerDeposits.find({customerId:req.id}).sort('-createdAt').limit(paginationData.limit).skip(paginationData.skip);
         res.status(200).send({status:200,
                              Message:`Total ${depositsData.length} found`,
                              totalDepositsCount:totalCount,
@@ -128,6 +129,32 @@ exports.getAdminBankDetails=async(req,res)=>{
             bankLogo:"https://st.adda247.com/https://wpassets.adda247.com/wp-content/uploads/multisite/sites/5/2020/08/11134300/cancel-icici-bank-credit-card.jpg",
             isBankActive:true})
 
+    }
+    catch(error)
+    {
+        res.status(500).send({status:500,Message:error.message || "something went wrong.Try again"})
+    }
+}
+
+/*---------------------Get_DepositBy_DepositId------------------------------*/
+exports.getDepositById=async(req,res)=>{
+
+    try{
+            if(!req.params.id)
+            {
+                return res.status(400).send({status:400,Message:"Required _id missing in the payload request"})
+            }
+
+            const checkDeposit=await CustomerDeposits.findOne({_id:req.params.id,customerId:req.id});
+
+            if(!checkDeposit)
+            {
+                return res.status(400).send({status:400,Message:"Your entered _id is invalid"})
+            }
+
+            const depositData=await CustomerDeposits.findOne({_id:req.params.id}).populate("customerId","username _id");
+
+            return res.status(400).send({status:200,Message:"Deposit data fetched successfully",Data:depositData})  
     }
     catch(error)
     {

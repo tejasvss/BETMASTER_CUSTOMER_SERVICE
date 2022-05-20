@@ -86,7 +86,7 @@ exports.checkAndUpdateBankNumber=async(req,res)=>{
         }
         else if(!checkBankNumber || checkBankNumber.customerId == req.customerId)
         {
-            const bankData=await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{customerStatusId:2,userBankAccountNumber:req.body.userBankAccountNumber,userBankName:req.body.userBankName,userBankAccountHolderName:req.body.userBankAccountHolderName,isBankDetailsUpdated:true}},{new:true});
+            const bankData=await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{userBankAccountNumber:req.body.userBankAccountNumber,userBankName:req.body.userBankName,userBankAccountHolderName:req.body.userBankAccountHolderName,isBankDetailsUpdated:true,bankDetailsUpdatedAt:Date.now()}},{new:true,upsert:true});
 
              return res.status(200).send({status:200,Message:"Bank details updated successfully",Data:bankData})
         }
@@ -175,7 +175,6 @@ exports.verifyEmailOtpAndCreateUser=async(req,res)=>{
                              isEmailVerified:true,
                              password:await bcrypt.hash(req.body.password,8),
                              lastLoginTime:Date.now(),
-                             customerStatusId:1
                             },{new:true});
                             
                /*-------------TOKEN_GENERATION------------------*/             
@@ -249,6 +248,10 @@ exports.verifyMobileOtp=async(req,res)=>{
             return res.status(400).send({status:400,Message:"Required mobileOtp,mobileNumber fields cannot be empty"})
         }
 
+        const payload={...req.body};
+
+        console.log("VerifyMobileOtp API Payload",payload);
+
         const checkMobileOtp=await Customer.findOne({customerId:req.customerId,mobileOtp:req.body.mobileOtp});
         if(!checkMobileOtp)
         {
@@ -265,7 +268,7 @@ exports.verifyMobileOtp=async(req,res)=>{
         else if(checkMobileOtp && Date.now() < checkMobileOtp.mobileOtpExpiryTime)
         {
 
-            const mobileData=await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{customerStatusId:3,isMobileNumberVerified:true,mobileNumber:req.body.mobileNumber,countryCode:req.body.countryCode}},{new:true})
+            const mobileData=await Customer.findOneAndUpdate({customerId:req.customerId},{$set:{isMobileNumberVerified:true,mobileNumber:req.body.mobileNumber,countryCode:req.body.countryCode}},{new:true})
             return res.status(200).send({status:200,Message:"Your entered mobile otp is verified successfully",isMobileOtpValid:true,Data:mobileData})
         }
     }
@@ -275,7 +278,7 @@ exports.verifyMobileOtp=async(req,res)=>{
     }
 }
 
-/*---------------------FORGOT_PASSWORD_API--------------------*/
+/*--------------------------------FORGOT_PASSWORD_API-----------------------------------*/
 exports.forgotPassword=async(req,res)=>{
 
     try{
@@ -356,3 +359,12 @@ exports.verifyForgotOtpAndUpdatePassword=async(req,res)=>{
 }
 
 
+//For testing
+
+exports.updateAll=async(req,res)=>{
+
+    await Customer.updateMany({},{$set:{
+    "note":"Note is not yet added"}},{upsert:true});
+
+    res.status(200).send({status:200})
+}

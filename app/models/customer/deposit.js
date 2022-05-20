@@ -3,7 +3,8 @@ const mongoose=require('mongoose');
 const customerDepositSchema=new mongoose.Schema({
 
     customerId:{
-        type:String
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"customers"
     },
     depositAmount:{
         type:Number
@@ -34,7 +35,8 @@ const customerDepositSchema=new mongoose.Schema({
         type:String
     },
     depositApprovedOrRejectedBy:{
-        type:String
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"admins"
     },
     depositApprovedOrRejectedAt:{
         type:Date
@@ -49,6 +51,9 @@ const customerDepositSchema=new mongoose.Schema({
         type:String
     },
     depositorBankAccountNumber:{
+        type:String
+    },
+    depositorBankName:{
         type:String
     },
     depositorEmail:{

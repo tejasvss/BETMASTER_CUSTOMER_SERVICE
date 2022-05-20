@@ -11,7 +11,7 @@ exports.customerBankWithdrawlRequest=async(req,res)=>{
 
     try{
        
-        if( !req.body.withdrawlAmount || !req.body.withdrawlTransactionType || !req.body.withdrawlMobileNumber || !req.body.withdrawlCountryCode || !req.body.withdrawlRequestorBankAccountHolderName || !req.body.withdrawlRequestorBankAccountNumber  || !req.body.withdrawlRequestorEmail  || !req.body.withdrawlRequestorBankSwiftcode)
+        if( !req.body.withdrawlAmount || !req.body.withdrawlTransactionType || !req.body.withdrawlMobileNumber || !req.body.withdrawlCountryCode || !req.body.withdrawlRequestorBankAccountHolderName || !req.body.withdrawlRequestorBankAccountNumber  || !req.body.withdrawlRequestorEmail  || !req.body.withdrawlRequestorBankSwiftcode || !req.body.withdrawlRequestorBankName)
         {
         return res.status(400).send({status:400,Message:"Required withdrawl request keys are missing in the request"})
         }
@@ -28,7 +28,7 @@ exports.customerBankWithdrawlRequest=async(req,res)=>{
 
             await CustomerWithdrawls.create({
 
-                customerId:req.customerId,
+                customerId:req.id,
                 withdrawlAmount:req.body.withdrawlAmount,
                 withdrawlTransactionType:req.body.withdrawlTransactionType,
                 withdrawlMobileNumber:req.body.withdrawlMobileNumber,
@@ -38,7 +38,7 @@ exports.customerBankWithdrawlRequest=async(req,res)=>{
                 withdrawlRequestorEmail:req.body.withdrawlRequestorEmail,
                 withdrawlRequestorBankSwiftcode:req.body.withdrawlRequestorBankSwiftcode,
                 withdrawlTransactionTypeImage:withdrawlTransactionTypeImage,
-                withdrawlId:withdrawlId
+                withdrawlRequestorBankName:req.body.withdrawlRequestorBankName
             }).then(async(success)=>{
 
                 const customer=await Customer.findOneAndUpdate({customerId:req.customerId},{$inc:{walletBalance:-(req.body.withdrawlAmount)}},{new:true});
@@ -62,12 +62,13 @@ exports.getAllCustomerWithdrawlStatements=async(req,res)=>{
         let dbQuery={};
         if(req.body.fromDate && req.body.toDate)
         {
-            dbQuery={customerId:req.customerId};
+            dbQuery={customerId:req.id};
             dbQuery.createdAt={$gte:new Date(req.body.fromDate).setHours(00,00,00),$lt:new Date(req.body.toDate).setHours(23,59,59)}
+            
         }
         else
         {
-            dbQuery={customerId:req.customerId};
+            dbQuery={customerId:req.id};
         }  
         console.log("DbQuery",dbQuery);
 
@@ -94,5 +95,31 @@ exports.getAllCustomerWithdrawlStatements=async(req,res)=>{
     catch(error)
     {
         res.status(500).send({status:500,Message:error.message || "Something went wrong.Try again"})
+    }
+}
+
+/*---------------------Get_DepositBy_DepositId------------------------------*/
+exports.getWithdrawlById=async(req,res)=>{
+
+    try{
+            if(!req.params.id)
+            {
+                return res.status(400).send({status:400,Message:"Required _id missing in the payload request"})
+            }
+
+            const checkWithdrawl=await CustomerWithdrawls.findOne({_id:req.params.id,customerId:req.id});
+
+            if(!checkWithdrawl)
+            {
+                return res.status(400).send({status:400,Message:"Your entered _id is invalid"})
+            }
+
+            const withdrawlData=await CustomerWithdrawls.findOne({_id:req.params.id}).populate("customerId","username _id");
+
+            return res.status(400).send({status:200,Message:"Withdrawl data fetched successfully",Data:withdrawlData})  
+    }
+    catch(error)
+    {
+        res.status(500).send({status:500,Message:error.message || "something went wrong.Try again"})
     }
 }

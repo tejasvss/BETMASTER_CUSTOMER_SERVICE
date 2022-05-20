@@ -11,10 +11,7 @@ const customerSchema=new mongoose.Schema({
         index:true,
         sparse:true
     },
-    customerStatusId:{
-        type:Number,
-        default:0
-    },
+   
     walletBalance:{
         type:Number,
         default:0
@@ -105,19 +102,43 @@ const customerSchema=new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    totalDepositAmount:{
+    totalDepositsAmount:{
         type:Number,
         default:0
     },
-    totalWithdrawlAmount:{
+    totalWithdrawlsAmount:{
         type:Number,
         default:0
     },
     totalRevenueAmount:{
         type:Number,
         default:0
+    },
+    bankDetailsUpdatedAt:
+    {
+        type:Date
+    },
+    note:{
+        type:String,
+        default:"Note is not yet added"
     }
 },{timestamps:true,versionKey:false});
+
+//Hiding the secret keys
+customerSchema.methods.toJSON=function(){
+    const user=this;
+    const userObject =user.toObject();
+
+    delete userObject.password;
+    delete userObject.lastLoginTime;
+    delete userObject.mobileOtpExpiryTime;
+    delete userObject.mobileOtp;
+    delete userObject.emailOtp;
+    delete userObject.emailOtpExpiryTime;
+    delete userObject.role;
+    return userObject;
+
+}
 
 const Customer=new mongoose.model("customers",customerSchema);
 
