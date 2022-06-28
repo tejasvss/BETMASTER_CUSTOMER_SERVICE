@@ -175,6 +175,9 @@ exports.verifyEmailOtpAndCreateUser=async(req,res)=>{
                              isEmailVerified:true,
                              password:await bcrypt.hash(req.body.password,8),
                              lastLoginTime:Date.now(),
+                             registeredIPAddress:req.body.IPAddress,
+                             IPAddress:req.body.IPAddress,
+                             deviceName:req.body.deviceName
                             },{new:true});
                             
                /*-------------TOKEN_GENERATION------------------*/             

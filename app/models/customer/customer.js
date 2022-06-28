@@ -121,7 +121,21 @@ const customerSchema=new mongoose.Schema({
     note:{
         type:String,
         default:"Note is not yet added"
+    },
+    registeredIPAddress:{
+        type:String,
+        default:"NA"
+    },
+    IPAddress:{
+        type:String,
+        default:"NA"
+    },
+    deviceName:{
+        type:String,
+        default:"na",
+        lowercase:true
     }
+
 },{timestamps:true,versionKey:false});
 
 //Hiding the secret keys
@@ -130,7 +144,6 @@ customerSchema.methods.toJSON=function(){
     const userObject =user.toObject();
 
     delete userObject.password;
-    delete userObject.lastLoginTime;
     delete userObject.mobileOtpExpiryTime;
     delete userObject.mobileOtp;
     delete userObject.emailOtp;
